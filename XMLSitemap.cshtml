@@ -1,0 +1,53 @@
+@inherits Umbraco.Web.Mvc.UmbracoTemplatePage<ContentModels.XMlsitemap>
+@using ContentModels = Umbraco.Web.PublishedContentModels;
+@{
+Layout = null;
+Response.ContentType = "text/xml";
+}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+    @ListChildNodes(Umbraco.TypedContent(UmbracoContext.Current.PageId).AncestorOrSelf(1))
+</urlset>
+
+@helper ListChildNodes(IPublishedContent startNode)
+{
+    <!-- Exclude nodes from the sitemap using document type alias -->
+    var docTypeExclusions = new List<string>()
+        {
+        "xMLSitemap","errorPage", "clubFeeList", "clubFee", "calendar", "event", "clubPhotoList", "clubPhoto", "sponsorCategory", "sponsor"
+        };
+    <!-- End of node exclusion -->
+
+    foreach (var node in startNode.Children.Where(x => !x.DocumentTypeAlias.ContainsAny(docTypeExclusions)))
+    {
+        if (node.TemplateId > 0)
+        {
+            <url>
+                <loc>@GetUrlWithDomainPrefix(node.Url)</loc>
+                <lastmod>@(string.Format("{0:s}+00:00", node.UpdateDate))</lastmod>
+            </url>
+        }
+
+        if (node.Level <= 100 && node.Children.Count() > 0)
+        {
+            @ListChildNodes(node)
+        }
+
+    }
+}
+
+@functions {
+    private static string GetUrlWithDomainPrefix(string url)
+    {
+    if (url.StartsWith("/"))
+        url = url.Substring(1);
+
+    var domainPrefix = string.Format("http://{0}/", HttpContext.Current.Request.ServerVariables["HTTP_HOST"]);
+
+    if (url.StartsWith(domainPrefix))
+        return url;
+    else
+        return domainPrefix + url;
+    }
+}
