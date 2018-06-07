@@ -26,3 +26,4 @@ Reference: https://www.alexlindgren.com/posts/dynamically-generated-xml-sitemaps
         </rule>
       </rules>
     </rewrite>
+    
