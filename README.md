@@ -15,3 +15,14 @@ Sitemap: http://www.alexlindgren.com/sitemap/
 Note that according to the spec, this must be a full URL.
 
 Reference: https://www.alexlindgren.com/posts/dynamically-generated-xml-sitemaps-with-umbraco-7/
+
+5. In the Web.config, add rewrite rule: 
+    <rewrite>
+      <rules>
+        <!-- Redirect rule for /sitemap.xml into /sitemap -->
+        <rule name="SiteMap" patternSyntax="Wildcard" stopProcessing="true">
+          <match url="sitemap.xml" />
+          <action type="Redirect" url="sitemap" appendQueryString="false" redirectType="Permanent" />
+        </rule>
+      </rules>
+    </rewrite>
